@@ -6,15 +6,9 @@ const Event = require("../models/Event");
 // import middleware
 const findOneRec = require("../middleware/findOne");
 
-router.use((req, res, next) => {
-  console.log(req.params);
-
-  next();
-});
-
 // include other resource router
 const talksRouter = require("./talks");
-router.use("/:id/talks", talksRouter);
+router.use("/:id/talks", findOneRec(Event), talksRouter);
 
 // @desc    Get all events
 // @route   GET /api/events
@@ -22,7 +16,7 @@ router.get("/", async (req, res) => {
   const reqQuery = { ...req.query };
 
   // exclude fields from query
-  const removeFields = ["select", "sort"];
+  const removeFields = ["select", "sort", "page", "limit"];
   removeFields.forEach(param => delete reqQuery[param]);
 
   // make query stringe readable for mongoose
@@ -45,15 +39,45 @@ router.get("/", async (req, res) => {
     query = query.sort("-createAt");
   }
 
-  try {
-    const events = await query.populate({
+  // pagination
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+  const total = await Event.countDocuments();
+
+  const newFullUrl = (val = 1) =>
+    `${req.protocol}://${req.get(
+      "host"
+    )}/api/events/?limit=${limit}&page=${page + val}`;
+
+  query = query.skip(startIndex).limit(limit);
+  const pagination = {};
+  if (endIndex < total) {
+    pagination.next = {
+      page: newFullUrl(+1)
+    };
+  }
+  if (startIndex > 0) {
+    pagination.prev = {
+      page: newFullUrl(-1)
+    };
+  }
+  // populate
+  query = query
+    .populate({
       path: "talks",
-      select: "name description"
-    });
+      select: "name description length"
+    })
+    .populate("talksCount");
+
+  try {
+    const events = await query;
 
     res.status(200).json({
       success: true,
       count: events.length,
+      pagination,
       data: events
     });
   } catch (error) {

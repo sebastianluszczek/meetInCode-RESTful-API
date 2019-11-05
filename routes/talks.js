@@ -9,16 +9,17 @@ const Talk = require("../models/Talk");
 router.get("/", async (req, res) => {
   try {
     let talks;
-    if (req.params.id) {
-      talks = await Talk.find({ event: req.params.id });
+    if (res.result && res.result._id) {
+      talks = await Talk.find({ event: res.result._id });
     } else {
       talks = await Talk.find({});
     }
 
     res.status(200).json({
       success: true,
+      data: res.result,
       count: talks.length,
-      data: talks
+      talks
     });
   } catch (error) {
     res.status(500).json({

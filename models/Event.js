@@ -18,6 +18,9 @@ const eventSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
       default: Date.now
+    },
+    sumLength: {
+      type: Number
     }
   },
   {
@@ -30,6 +33,13 @@ eventSchema.virtual("talks", {
   localField: "_id",
   foreignField: "event",
   justOne: false
+});
+
+eventSchema.virtual("talksCount", {
+  ref: "Talk",
+  localField: "_id",
+  foreignField: "event",
+  count: true
 });
 
 module.exports = mongoose.model("Event", eventSchema);
