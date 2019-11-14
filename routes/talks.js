@@ -31,6 +31,7 @@ router.get("/", async (req, res) => {
 
 // @desc    Create new talk
 // @route   POST /api/talks
+// @access  Private
 router.post("/", async (req, res) => {
   try {
     const talk = await Talk.create(req.body);
