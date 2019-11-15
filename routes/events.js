@@ -5,7 +5,7 @@ const Event = require("../models/Event");
 
 // import middleware
 const findOneRec = require("../middleware/findOne");
-const { verifyToken } = require("../middleware/authMiddleware");
+const { verifyToken, verifyRole } = require("../middleware/authMiddleware");
 
 // include other resource router
 const talksRouter = require("./talks");
@@ -93,7 +93,7 @@ router.get("/", async (req, res) => {
 // @desc    Create new event
 // @route   POST /api/events
 // @access  Private
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", verifyToken, verifyRole("author"), async (req, res) => {
   try {
     const event = await Event.create(req.body);
 
