@@ -3,9 +3,13 @@ const router = require("express").Router();
 // import Event model
 const Talk = require("../models/Talk");
 
+// import middleware
+const { verifyToken } = require("../middleware/authMiddleware");
+
 // @desc    Get all talks
 // @route   GET /api/talks
 // @route   GET /api/events/:id/talks
+// @access  Public
 router.get("/", async (req, res) => {
   try {
     let talks;
@@ -32,7 +36,7 @@ router.get("/", async (req, res) => {
 // @desc    Create new talk
 // @route   POST /api/talks
 // @access  Private
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, async (req, res) => {
   try {
     const talk = await Talk.create(req.body);
 

@@ -5,6 +5,7 @@ const Event = require("../models/Event");
 
 // import middleware
 const findOneRec = require("../middleware/findOne");
+const { verifyToken } = require("../middleware/authMiddleware");
 
 // include other resource router
 const talksRouter = require("./talks");
@@ -92,7 +93,7 @@ router.get("/", async (req, res) => {
 // @desc    Create new event
 // @route   POST /api/events
 // @access  Private
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, async (req, res) => {
   try {
     const event = await Event.create(req.body);
 
@@ -121,7 +122,7 @@ router.get("/:id", findOneRec(Event), async (req, res) => {
 // @desc    Update event
 // @route   PUT /api/events/:id
 // @access  Private
-router.put("/:id", findOneRec(Event), async (req, res) => {
+router.put("/:id", verifyToken, findOneRec(Event), async (req, res) => {
   try {
     const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -143,7 +144,7 @@ router.put("/:id", findOneRec(Event), async (req, res) => {
 // @desc    Delete event
 // @route   DELETE /api/events/:id
 // @access  Private
-router.delete("/:id", findOneRec(Event), async (req, res) => {
+router.delete("/:id", verifyToken, findOneRec(Event), async (req, res) => {
   try {
     res.result.remove();
 

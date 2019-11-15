@@ -28,8 +28,19 @@ router.post("/register", async (req, res) => {
       password
     });
 
+    // sign token
+    const token = jwt.sign(
+      {
+        _id: user._id,
+        email: user.email,
+        role: user.role
+      },
+      process.env.JWT_SECRET
+    );
+
     res.status(201).json({
       succes: true,
+      token,
       msg: "New user created"
     });
   } catch (error) {
@@ -84,7 +95,8 @@ router.post("/login", async (req, res) => {
 
   res.status(200).json({
     succes: true,
-    token
+    token,
+    msg: "Logged in"
   });
 });
 
