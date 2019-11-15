@@ -5,6 +5,9 @@ const jwt = require("jsonwebtoken");
 // import Event model
 const User = require("../models/User");
 
+// import middleware
+const { verifyToken } = require("../middleware/authMiddleware");
+
 // @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
@@ -39,7 +42,7 @@ router.post("/register", async (req, res) => {
     );
 
     res.status(201).json({
-      succes: true,
+      success: true,
       token,
       msg: "New user created"
     });
@@ -66,11 +69,11 @@ router.post("/login", async (req, res) => {
   }
 
   // check if email in database
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select("+password");
   if (!user) {
     return res.status(401).json({
       success: false,
-      error: "Credential error - no matchin email id DB"
+      error: "Credential error - no matching email id DB"
     });
   }
 
@@ -94,10 +97,28 @@ router.post("/login", async (req, res) => {
   );
 
   res.status(200).json({
-    succes: true,
+    success: true,
     token,
     msg: "Logged in"
   });
+});
+
+// @desc    Get current logged user
+// @route   GET /api/auth/me
+// @access  Private
+router.get("/me", verifyToken, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error
+    });
+  }
 });
 
 module.exports = router;

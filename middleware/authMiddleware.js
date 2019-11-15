@@ -23,7 +23,7 @@ exports.verifyToken = async (req, res, next) => {
     const verified = await jwt.verify(token, process.env.JWT_SECRET);
 
     // add logged user to req.user
-    req.user = await User.findById(verified.id);
+    req.user = await User.findById(verified._id);
     next();
   } catch (error) {
     res.status(401).json({
