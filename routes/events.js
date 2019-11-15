@@ -64,13 +64,13 @@ router.get("/", async (req, res) => {
       page: newFullUrl(-1)
     };
   }
-  // populate
-  query = query
-    .populate({
-      path: "talks",
-      select: "name description length"
-    })
-    .populate("talksCount");
+  // // populate
+  // query = query
+  //   .populate({
+  //     path: "talks",
+  //     select: "name description length"
+  //   })
+  //   .populate("talksCount");
 
   try {
     const events = await query;

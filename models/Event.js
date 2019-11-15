@@ -37,12 +37,13 @@ const eventSchema = new mongoose.Schema(
         type: [Number],
         index: "2dsphere"
       },
-      formattedAddress: String,
-      street: String,
+      streetName: String,
+      streetNumber: String,
       city: String,
       state: String,
       zipcode: String,
-      country: String
+      country: String,
+      countryCode: String
     }
   },
   {
@@ -65,28 +66,30 @@ eventSchema.virtual("talksCount", {
 });
 
 const options = {
-  provider: "mapquest",
+  provider: "opencage",
   httpAdapter: "https",
-  apiKey: process.env.MAPQUEST_KEY,
+  apiKey: process.env.GEOCODE_API_KEY,
   formatter: null
 };
 
 // Geocoder
 eventSchema.pre("save", async function(next) {
   const loc = await nodeGeocoder(options).geocode(this.address);
+  let confidences = [];
+  loc.forEach(i => confidences.push(i.extra.confidence));
+  const index = confidences.indexOf(Math.max(...confidences));
+
   this.location = {
     type: "Point",
-    coordinates: [loc[0].longitude, loc[0].latitude],
-    formattedAddress: loc[0].formattedAddress,
-    street: loc[0].streetName,
-    streetNumber: loc[0].streetNumber,
-    city: loc[0].city,
-    state: loc[0].stateCode,
-    zipcode: loc[0].zipcode,
-    country: loc[0].countryCode
+    coordinates: [loc[index].longitude, loc[index].latitude],
+    streetName: loc[index].streetName,
+    streetNumber: loc[index].streetNumber,
+    city: loc[index].city,
+    state: loc[index].state,
+    zipcode: loc[index].zipcode,
+    country: loc[index].country,
+    countryCode: loc[index].countryCode
   };
-
-  console.log(loc);
 
   this.address = undefined;
   next();
