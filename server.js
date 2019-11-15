@@ -17,6 +17,7 @@ mongoose.connect(
 // import routes
 const eventRouter = require("./routes/events");
 const talkRouter = require("./routes/talks");
+const authRouter = require("./routes/auth");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(express.json());
 // use routes
 app.use("/api/events", eventRouter);
 app.use("/api/talks", talkRouter);
+app.use("/api/auth", authRouter);
 
 const PORT = process.env.PORT || 5000;
 

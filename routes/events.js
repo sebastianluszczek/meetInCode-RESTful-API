@@ -12,6 +12,7 @@ router.use("/:id/talks", findOneRec(Event), talksRouter);
 
 // @desc    Get all events
 // @route   GET /api/events
+// @access  Public
 router.get("/", async (req, res) => {
   const reqQuery = { ...req.query };
 
@@ -90,6 +91,7 @@ router.get("/", async (req, res) => {
 
 // @desc    Create new event
 // @route   POST /api/events
+// @access  Private
 router.post("/", async (req, res) => {
   try {
     const event = await Event.create(req.body);
@@ -108,6 +110,7 @@ router.post("/", async (req, res) => {
 
 // @desc    Get single event
 // @route   GET /api/events/:id
+// @access  Public
 router.get("/:id", findOneRec(Event), async (req, res) => {
   res.status(200).json({
     success: true,
@@ -117,6 +120,7 @@ router.get("/:id", findOneRec(Event), async (req, res) => {
 
 // @desc    Update event
 // @route   PUT /api/events/:id
+// @access  Private
 router.put("/:id", findOneRec(Event), async (req, res) => {
   try {
     const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
@@ -138,6 +142,7 @@ router.put("/:id", findOneRec(Event), async (req, res) => {
 
 // @desc    Delete event
 // @route   DELETE /api/events/:id
+// @access  Private
 router.delete("/:id", findOneRec(Event), async (req, res) => {
   try {
     res.result.remove();
