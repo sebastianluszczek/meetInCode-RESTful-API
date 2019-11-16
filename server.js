@@ -24,6 +24,9 @@ const app = express();
 // json parse middleware
 app.use(express.json());
 
+// static folder
+app.use(express.static("public"));
+
 // use routes
 app.use("/api/events", eventRouter);
 app.use("/api/talks", talkRouter);

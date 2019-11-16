@@ -108,7 +108,9 @@ router.post("/login", async (req, res) => {
 // @access  Private
 router.get("/me", verifyToken, async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user._id)
+      .populate({ path: "events", select: "name" })
+      .populate({ path: "talks", select: "name" });
     res.status(200).json({
       success: true,
       data: user

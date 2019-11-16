@@ -23,6 +23,11 @@ const eventSchema = new mongoose.Schema(
     sumLength: {
       type: Number
     },
+    user: {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+      required: true
+    },
     address: {
       type: String,
       required: true

@@ -4,7 +4,8 @@ const router = require("express").Router();
 const Talk = require("../models/Talk");
 
 // import middleware
-const { verifyToken } = require("../middleware/authMiddleware");
+const findOneRec = require("../middleware/findOne");
+const { verifyToken, verifyRole } = require("../middleware/authMiddleware");
 
 // @desc    Get all talks
 // @route   GET /api/talks
@@ -36,20 +37,115 @@ router.get("/", async (req, res) => {
 // @desc    Create new talk
 // @route   POST /api/talks
 // @access  Private
-router.post("/", verifyToken, async (req, res) => {
-  try {
-    const talk = await Talk.create(req.body);
+router.post(
+  "/",
+  verifyToken,
+  verifyRole("author", "admin"),
+  async (req, res) => {
+    try {
+      // add logged user to req.body
+      req.body.user = req.user.id;
 
-    res.status(200).json({
-      success: true,
-      data: talk
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+      const talk = await Talk.create(req.body);
+
+      res.status(200).json({
+        success: true,
+        data: talk
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
   }
+);
+
+// @desc    Get single talk
+// @route   GET /api/talk/:id
+// @access  Public
+router.get("/:id", findOneRec(Talk), async (req, res) => {
+  res.status(200).json({
+    success: true,
+    data: res.result
+  });
 });
+
+// @desc    Update talk
+// @route   PUT /api/talks/:id
+// @access  Private
+router.put(
+  "/:id",
+  verifyToken,
+  verifyRole("author", "admin"),
+  findOneRec(Talk),
+  async (req, res) => {
+    // check if current logged user is an owner of doc or admin
+    if (
+      res.result.user.toString() !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: `User ${req.user.id} is not owner of document or admin`
+      });
+    }
+
+    try {
+      // update doc
+      const event = await Talk.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+      });
+
+      res.status(200).json({
+        success: true,
+        data: event
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
+// @desc    Delete talk
+// @route   DELETE /api/talks/:id
+// @access  Private
+router.delete(
+  "/:id",
+  verifyToken,
+  verifyRole("author", "admin"),
+  findOneRec(Talk),
+  async (req, res) => {
+    // check if current logged user is an owner of doc or admin
+    if (
+      res.result.user.toString() !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: `User ${req.user.id} is not owner of document or admin`
+      });
+    }
+
+    try {
+      // remove doc
+      res.result.remove();
+
+      res.status(200).json({
+        success: true,
+        data: {}
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
 
 module.exports = router;

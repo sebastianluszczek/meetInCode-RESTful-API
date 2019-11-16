@@ -65,12 +65,11 @@ router.get("/", async (req, res) => {
       page: newFullUrl(-1)
     };
   }
-  // // populate
-  // query = query
-  //   .populate({
-  //     path: "talks",
-  //     select: "name description length"
-  //   })
+  // populate
+  query = query.populate({
+    path: "talks",
+    select: "name description length"
+  });
   //   .populate("talksCount");
 
   try {
@@ -93,8 +92,11 @@ router.get("/", async (req, res) => {
 // @desc    Create new event
 // @route   POST /api/events
 // @access  Private
-router.post("/", verifyToken, verifyRole("author"), async (req, res) => {
+router.post("/", verifyToken, verifyRole("admin"), async (req, res) => {
   try {
+    // add logged user to req.body
+    req.body.user = req.user.id;
+
     const event = await Event.create(req.body);
 
     res.status(200).json({
@@ -122,42 +124,54 @@ router.get("/:id", findOneRec(Event), async (req, res) => {
 // @desc    Update event
 // @route   PUT /api/events/:id
 // @access  Private
-router.put("/:id", verifyToken, findOneRec(Event), async (req, res) => {
-  try {
-    const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
+router.put(
+  "/:id",
+  verifyToken,
+  verifyRole("admin"),
+  findOneRec(Event),
+  async (req, res) => {
+    try {
+      const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+      });
 
-    res.status(200).json({
-      success: true,
-      data: event
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+      res.status(200).json({
+        success: true,
+        data: event
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
   }
-});
+);
 
 // @desc    Delete event
 // @route   DELETE /api/events/:id
 // @access  Private
-router.delete("/:id", verifyToken, findOneRec(Event), async (req, res) => {
-  try {
-    res.result.remove();
+router.delete(
+  "/:id",
+  verifyToken,
+  verifyRole("admin"),
+  findOneRec(Event),
+  async (req, res) => {
+    try {
+      res.result.remove();
 
-    res.status(200).json({
-      success: true,
-      data: {}
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
+      res.status(200).json({
+        success: true,
+        data: {}
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
   }
-});
+);
 
 module.exports = router;
