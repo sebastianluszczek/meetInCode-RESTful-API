@@ -1,20 +1,23 @@
 const mongoose = require("mongoose");
 const nodeGeocoder = require("node-geocoder");
 
+//import Talk model
+const Talk = require("./Talk");
+
 const eventSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, "Please add Event name"],
       unique: true
     },
     description: {
       type: String,
-      required: true
+      required: [true, "Please add Event description"]
     },
     cost: {
       type: Number,
-      required: true
+      required: [true, "Please add Event cost in PLN"]
     },
     createdAt: {
       type: Date,
@@ -30,7 +33,7 @@ const eventSchema = new mongoose.Schema(
     },
     address: {
       type: String,
-      required: true
+      required: [true, "Please add Event address (e.g. Długa 11 Kraków)"]
     },
     location: {
       // GeoJSON Point
@@ -70,6 +73,7 @@ eventSchema.virtual("talksCount", {
   count: true
 });
 
+// Geocoder
 const options = {
   provider: "opencage",
   httpAdapter: "https",
@@ -77,7 +81,6 @@ const options = {
   formatter: null
 };
 
-// Geocoder
 eventSchema.pre("save", async function(next) {
   const loc = await nodeGeocoder(options).geocode(this.address);
   let confidences = [];
@@ -97,6 +100,12 @@ eventSchema.pre("save", async function(next) {
   };
 
   this.address = undefined;
+  next();
+});
+
+// cascade delete of talks when associated event is deleted
+eventSchema.pre("remove", async function(next) {
+  await this.model("Talk").deleteMany({ event: this._id });
   next();
 });
 

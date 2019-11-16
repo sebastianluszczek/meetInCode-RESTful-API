@@ -3,20 +3,23 @@ const mongoose = require("mongoose");
 const talkSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: [true, "Please add Talk name"]
   },
   description: {
     type: String,
-    required: true
+    required: [true, "Please add Talk description"]
   },
   length: {
     type: Number,
-    required: true
+    required: [true, "Please add Talk length in hours"]
   },
   event: {
     type: mongoose.Schema.ObjectId,
     ref: "Event",
-    required: true
+    required: [
+      true,
+      "You have to provide Event id this Talk is associated with"
+    ]
   },
   user: {
     type: mongoose.Schema.ObjectId,
@@ -54,6 +57,12 @@ talkSchema.statics.getSumLength = async function(eventId) {
 
 // Call getSumLength after save
 talkSchema.post("save", function() {
+  this.constructor.getSumLength(this.event);
+});
+
+// Call getSumLength after update
+talkSchema.post("findByIdAndUpdate", function() {
+  console.log("fire");
   this.constructor.getSumLength(this.event);
 });
 

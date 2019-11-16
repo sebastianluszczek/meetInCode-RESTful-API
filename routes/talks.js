@@ -1,7 +1,8 @@
 const router = require("express").Router();
 
-// import Event model
+// import models
 const Talk = require("../models/Talk");
+const Event = require("../models/Event");
 
 // import middleware
 const findOneRec = require("../middleware/findOne");
@@ -45,6 +46,15 @@ router.post(
     try {
       // add logged user to req.body
       req.body.user = req.user.id;
+
+      // check if event, we try add talk to, exist
+      const event = await Event.findById(req.body.event);
+      if (!event) {
+        return res.status(404).json({
+          success: false,
+          error: `Event, you try add talk to, does not exist.`
+        });
+      }
 
       const talk = await Talk.create(req.body);
 
