@@ -1,31 +1,35 @@
 const router = require("express").Router();
 
 // import models
-const Talk = require("../models/Talk");
+const Lecture = require("../models/Lectures");
 const Event = require("../models/Event");
 
 // import middleware
 const findOneRec = require("../middleware/findOne");
-const { verifyToken, verifyRole } = require("../middleware/authMiddleware");
+const {
+  verifyToken,
+  verifyRole,
+  verifyOwner
+} = require("../middleware/authMiddleware");
 
-// @desc    Get all talks
-// @route   GET /api/talks
-// @route   GET /api/events/:id/talks
+// @desc    Get all lectures
+// @route   GET /api/lectures
+// @route   GET /api/events/:id/lectures
 // @access  Public
 router.get("/", async (req, res) => {
   try {
-    let talks;
+    let lectures;
     if (res.result && res.result._id) {
-      talks = await Talk.find({ event: res.result._id });
+      lectures = await Lecture.find({ event: res.result._id });
     } else {
-      talks = await Talk.find({});
+      lectures = await Lecture.find({});
     }
 
     res.status(200).json({
       success: true,
       data: res.result,
-      count: talks.length,
-      talks
+      count: lectures.length,
+      lectures
     });
   } catch (error) {
     res.status(500).json({
@@ -36,12 +40,12 @@ router.get("/", async (req, res) => {
 });
 
 // @desc    Create new talk
-// @route   POST /api/talks
+// @route   POST /api/lectures
 // @access  Private
 router.post(
   "/",
   verifyToken,
-  verifyRole("author", "admin"),
+  verifyRole("lecturer", "organizer"),
   async (req, res) => {
     try {
       // add logged user to req.body
@@ -56,7 +60,7 @@ router.post(
         });
       }
 
-      const talk = await Talk.create(req.body);
+      const talk = await Lecture.create(req.body);
 
       res.status(200).json({
         success: true,
@@ -74,7 +78,7 @@ router.post(
 // @desc    Get single talk
 // @route   GET /api/talk/:id
 // @access  Public
-router.get("/:id", findOneRec(Talk), async (req, res) => {
+router.get("/:id", findOneRec(Lecture), async (req, res) => {
   res.status(200).json({
     success: true,
     data: res.result
@@ -82,35 +86,28 @@ router.get("/:id", findOneRec(Talk), async (req, res) => {
 });
 
 // @desc    Update talk
-// @route   PUT /api/talks/:id
+// @route   PUT /api/lectures/:id
 // @access  Private
 router.put(
   "/:id",
   verifyToken,
-  verifyRole("author", "admin"),
-  findOneRec(Talk),
+  verifyRole("lecturer", "organizer"),
+  findOneRec(Lecture),
+  verifyOwner,
   async (req, res) => {
-    // check if current logged user is an owner of doc or admin
-    if (
-      res.result.user.toString() !== req.user.id &&
-      req.user.role !== "admin"
-    ) {
-      return res.status(400).json({
-        success: false,
-        error: `User ${req.user.id} is not owner of document or admin`
-      });
-    }
-
     try {
       // update doc
-      const event = await Talk.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-      });
+      // instead of .findByIdAndUpdate() manually exchange updated props to run .save() co Lecture.sumLength will be updated
+      let user = res.result;
+      for (let key in req.body) {
+        user[key] =
+          res.result[key] !== req.body[key] ? req.body[key] : res.result[key];
+      }
+      user.save();
 
       res.status(200).json({
         success: true,
-        data: event
+        data: res.result
       });
     } catch (error) {
       res.status(500).json({
@@ -122,25 +119,15 @@ router.put(
 );
 
 // @desc    Delete talk
-// @route   DELETE /api/talks/:id
+// @route   DELETE /api/lectures/:id
 // @access  Private
 router.delete(
   "/:id",
   verifyToken,
-  verifyRole("author", "admin"),
-  findOneRec(Talk),
+  verifyRole("lecturer", "organizer"),
+  findOneRec(Lecture),
+  verifyOwner,
   async (req, res) => {
-    // check if current logged user is an owner of doc or admin
-    if (
-      res.result.user.toString() !== req.user.id &&
-      req.user.role !== "admin"
-    ) {
-      return res.status(400).json({
-        success: false,
-        error: `User ${req.user.id} is not owner of document or admin`
-      });
-    }
-
     try {
       // remove doc
       res.result.remove();

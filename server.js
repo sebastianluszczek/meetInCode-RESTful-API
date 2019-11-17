@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const morgan = require("morgan");
 require("dotenv").config();
 
 // connect mongoDB
@@ -16,8 +17,9 @@ mongoose.connect(
 
 // import routes
 const eventRouter = require("./routes/events");
-const talkRouter = require("./routes/talks");
+const talkRouter = require("./routes/lectures");
 const authRouter = require("./routes/auth");
+const userRouter = require("./routes/users");
 
 const app = express();
 
@@ -27,10 +29,14 @@ app.use(express.json());
 // static folder
 app.use(express.static("public"));
 
+// logging middleware - morgan
+app.use(morgan("tiny"));
+
 // use routes
 app.use("/api/events", eventRouter);
-app.use("/api/talks", talkRouter);
+app.use("/api/lectures", talkRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
 
 const PORT = process.env.PORT || 5000;
 

@@ -5,9 +5,6 @@ const jwt = require("jsonwebtoken");
 // import Event model
 const User = require("../models/User");
 
-// import middleware
-const { verifyToken } = require("../middleware/authMiddleware");
-
 // @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
@@ -101,26 +98,6 @@ router.post("/login", async (req, res) => {
     token,
     msg: "Logged in"
   });
-});
-
-// @desc    Get current logged user
-// @route   GET /api/auth/me
-// @access  Private
-router.get("/me", verifyToken, async (req, res, next) => {
-  try {
-    const user = await User.findById(req.user._id)
-      .populate({ path: "events", select: "name" })
-      .populate({ path: "talks", select: "name" });
-    res.status(200).json({
-      success: true,
-      data: user
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      error
-    });
-  }
 });
 
 module.exports = router;

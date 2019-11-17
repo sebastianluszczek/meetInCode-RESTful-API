@@ -3,7 +3,7 @@ const findOneRec = model => async (req, res, next) => {
   if (!result) {
     return res.status(404).json({
       success: false,
-      error: `No event with id of ${req.params.id}`
+      error: `No document with id of ${req.params.id}`
     });
   }
   res.result = result;

@@ -36,3 +36,17 @@ DB_CONNECT = ...
 GEOCODE_API_KEY = ...
 JWT_SECRET = ...
 ```
+
+# ToDo
+
+Thinks to implement:
+
+- _admin_ panel routes - CRUD of users, changing ownership of events and events & lectures
+- _user_ should be able to register for event
+- _user_'s should be able to give recommendations and ratings of events (maybe lectures too - only recoms)
+- owners shouldn't rate own events (lectures)
+- routes to add photos for _Event_'s and users avatars
+- add in _readMe.md_ list of fetchers where completed fetchers will be marked
+- average of ratings
+- JWT token in cookies
+- JWT and password verify methods moved to _Model.methods_

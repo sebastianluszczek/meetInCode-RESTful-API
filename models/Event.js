@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const nodeGeocoder = require("node-geocoder");
 
-//import Talk model
-const Talk = require("./Talk");
+//import Lecture model
+const Lecture = require("./Lectures");
 
 const eventSchema = new mongoose.Schema(
   {
@@ -59,15 +59,15 @@ const eventSchema = new mongoose.Schema(
   }
 );
 
-eventSchema.virtual("talks", {
-  ref: "Talk",
+eventSchema.virtual("lectures", {
+  ref: "Lecture",
   localField: "_id",
   foreignField: "event",
   justOne: false
 });
 
-eventSchema.virtual("talksCount", {
-  ref: "Talk",
+eventSchema.virtual("lecturesCount", {
+  ref: "Lecture",
   localField: "_id",
   foreignField: "event",
   count: true
@@ -103,9 +103,9 @@ eventSchema.pre("save", async function(next) {
   next();
 });
 
-// cascade delete of talks when associated event is deleted
+// cascade delete of lectures when associated event is deleted
 eventSchema.pre("remove", async function(next) {
-  await this.model("Talk").deleteMany({ event: this._id });
+  await this.model("Lecture").deleteMany({ event: this._id });
   next();
 });
 

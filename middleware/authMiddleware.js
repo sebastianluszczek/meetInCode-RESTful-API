@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Event = require("../models/Event");
 
 exports.verifyToken = async (req, res, next) => {
   let token;
@@ -34,10 +35,33 @@ exports.verifyToken = async (req, res, next) => {
 };
 
 exports.verifyRole = (...roles) => (req, res, next) => {
-  if (!roles.includes(req.user.role)) {
+  // check if user role includes in roles with permission or if it is  admin role
+  if (!roles.includes(req.user.role) && req.user.role !== "admin") {
     return res.status(403).json({
       success: false,
-      error: `Your role '${req.user.role}' is not authorized to access this route`
+      error: `User ${req.user.id} role '${req.user.role}' is not authorized to access this route`
+    });
+  }
+  next();
+};
+
+exports.verifyOwner = async (req, res, next) => {
+  // check if current logged user is an owner of doc or admin
+  if (res.result.user.toString() !== req.user.id && req.user.role !== "admin") {
+    // check if this is lecture
+    if (res.result.event) {
+      // find owner of event this lecture is associated
+      const event = await Event.findById(res.result.event);
+
+      // if logged user an owner of event proceed (he might edit lectures too)
+      if (event.user.toString() === req.user.id) {
+        return next();
+      }
+    }
+
+    return res.status(400).json({
+      success: false,
+      error: `User ${req.user.id} is not owner of this document`
     });
   }
   next();

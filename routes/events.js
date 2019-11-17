@@ -5,11 +5,15 @@ const Event = require("../models/Event");
 
 // import middleware
 const findOneRec = require("../middleware/findOne");
-const { verifyToken, verifyRole } = require("../middleware/authMiddleware");
+const {
+  verifyToken,
+  verifyRole,
+  verifyOwner
+} = require("../middleware/authMiddleware");
 
 // include other resource router
-const talksRouter = require("./talks");
-router.use("/:id/talks", findOneRec(Event), talksRouter);
+const lecturesRouter = require("./lectures");
+router.use("/:id/lectures", findOneRec(Event), lecturesRouter);
 
 // @desc    Get all events
 // @route   GET /api/events
@@ -67,10 +71,10 @@ router.get("/", async (req, res) => {
   }
   // populate
   query = query.populate({
-    path: "talks",
+    path: "lectures",
     select: "name description length"
   });
-  //   .populate("talksCount");
+  //   .populate("lecturesCount");
 
   try {
     const events = await query;
@@ -92,7 +96,7 @@ router.get("/", async (req, res) => {
 // @desc    Create new event
 // @route   POST /api/events
 // @access  Private
-router.post("/", verifyToken, verifyRole("admin"), async (req, res) => {
+router.post("/", verifyToken, verifyRole("organizer"), async (req, res) => {
   try {
     // add logged user to req.body
     req.body.user = req.user.id;
@@ -127,8 +131,9 @@ router.get("/:id", findOneRec(Event), async (req, res) => {
 router.put(
   "/:id",
   verifyToken,
-  verifyRole("admin"),
+  verifyRole("organizer"),
   findOneRec(Event),
+  verifyOwner,
   async (req, res) => {
     try {
       const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
@@ -155,8 +160,9 @@ router.put(
 router.delete(
   "/:id",
   verifyToken,
-  verifyRole("admin"),
+  verifyRole("organizer"),
   findOneRec(Event),
+  verifyOwner,
   async (req, res) => {
     try {
       res.result.remove();

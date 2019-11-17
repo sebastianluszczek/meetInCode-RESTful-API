@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "author"],
+      enum: ["user", "lecturer"],
       default: "user"
     },
     password: {
@@ -44,8 +44,8 @@ userSchema.virtual("events", {
   justOne: false
 });
 
-userSchema.virtual("talks", {
-  ref: "Talk",
+userSchema.virtual("lectures", {
+  ref: "Lecture",
   localField: "_id",
   foreignField: "user",
   justOne: false

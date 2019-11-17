@@ -1,24 +1,24 @@
 const mongoose = require("mongoose");
 
-const talkSchema = new mongoose.Schema({
+const lectureSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, "Please add Talk name"]
+    required: [true, "Please add Lecture name"]
   },
   description: {
     type: String,
-    required: [true, "Please add Talk description"]
+    required: [true, "Please add Lecture description"]
   },
   length: {
     type: Number,
-    required: [true, "Please add Talk length in hours"]
+    required: [true, "Please add Lecture length in hours"]
   },
   event: {
     type: mongoose.Schema.ObjectId,
     ref: "Event",
     required: [
       true,
-      "You have to provide Event id this Talk is associated with"
+      "You have to provide Event id this Lecture is associated with"
     ]
   },
   user: {
@@ -33,7 +33,7 @@ const talkSchema = new mongoose.Schema({
 });
 
 // Static method to get sum of length
-talkSchema.statics.getSumLength = async function(eventId) {
+lectureSchema.statics.getSumLength = async function(eventId) {
   const obj = await this.aggregate([
     {
       $match: { event: eventId }
@@ -56,19 +56,13 @@ talkSchema.statics.getSumLength = async function(eventId) {
 };
 
 // Call getSumLength after save
-talkSchema.post("save", function() {
-  this.constructor.getSumLength(this.event);
-});
-
-// Call getSumLength after update
-talkSchema.post("findByIdAndUpdate", function() {
-  console.log("fire");
+lectureSchema.post("save", function() {
   this.constructor.getSumLength(this.event);
 });
 
 // Call getSumLength before remove
-talkSchema.pre("remove", function() {
+lectureSchema.pre("remove", function() {
   this.constructor.getSumLength(this.event);
 });
 
-module.exports = mongoose.model("Talk", talkSchema);
+module.exports = mongoose.model("Lecture", lectureSchema);
