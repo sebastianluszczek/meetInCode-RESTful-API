@@ -70,10 +70,10 @@ router.get("/", async (req, res) => {
     };
   }
   // populate
-  query = query.populate({
-    path: "lectures",
-    select: "name description length"
-  });
+  // query = query.populate({
+  //   path: "lectures",
+  //   select: "name description length"
+  // });
   //   .populate("lecturesCount");
 
   try {

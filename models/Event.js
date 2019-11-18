@@ -31,6 +31,9 @@ const eventSchema = new mongoose.Schema(
       ref: "User",
       required: true
     },
+    avgRating: {
+      type: Number
+    },
     address: {
       type: String,
       required: [true, "Please add Event address (e.g. Długa 11 Kraków)"]

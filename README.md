@@ -50,3 +50,4 @@ Thinks to implement:
 - average of ratings
 - JWT token in cookies
 - JWT and password verify methods moved to _Model.methods_
+- populate _Lectures_ when querying single _Event_

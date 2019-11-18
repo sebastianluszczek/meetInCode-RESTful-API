@@ -26,6 +26,9 @@ const lectureSchema = new mongoose.Schema({
     ref: "User",
     required: true
   },
+  avgRating: {
+    type: Number
+  },
   createdAt: {
     type: Date,
     default: Date.now

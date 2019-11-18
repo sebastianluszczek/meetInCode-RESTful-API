@@ -51,12 +51,12 @@ router.post(
       // add logged user to req.body
       req.body.user = req.user.id;
 
-      // check if event, we try add talk to, exist
+      // check if event, we try add lecture to, does exist
       const event = await Event.findById(req.body.event);
       if (!event) {
         return res.status(404).json({
           success: false,
-          error: `Event, you try add talk to, does not exist.`
+          error: `Event, you try add lecture to, does not exist.`
         });
       }
 
