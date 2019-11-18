@@ -20,7 +20,6 @@ const eventRouter = require("./routes/events");
 const talkRouter = require("./routes/lectures");
 const authRouter = require("./routes/auth");
 const userRouter = require("./routes/users");
-const ratingRouter = require("./routes/ratings");
 
 const app = express();
 
@@ -38,7 +37,6 @@ app.use("/api/events", eventRouter);
 app.use("/api/lectures", talkRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
-app.use("/api/ratings", ratingRouter);
 
 const PORT = process.env.PORT || 5000;
 

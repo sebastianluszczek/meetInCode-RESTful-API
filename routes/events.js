@@ -1,7 +1,8 @@
 const router = require("express").Router();
 
-// import Event model
+// import models
 const Event = require("../models/Event");
+const Rating = require("../models/Rating");
 
 // import middleware
 const findOneRec = require("../middleware/findOne");
@@ -10,10 +11,6 @@ const {
   verifyRole,
   verifyOwner
 } = require("../middleware/authMiddleware");
-
-// include other resource router
-const lecturesRouter = require("./lectures");
-router.use("/:id/lectures", findOneRec(Event), lecturesRouter);
 
 // @desc    Get all events
 // @route   GET /api/events
@@ -115,6 +112,11 @@ router.post("/", verifyToken, verifyRole("organizer"), async (req, res) => {
   }
 });
 
+// @desc    Create lecture connected to specific event
+// @route   POST /api/events/:id/lectures
+// @access  Private
+router.use("/:id/lectures", findOneRec(Event), require("./lectures"));
+
 // @desc    Get single event
 // @route   GET /api/events/:id
 // @access  Public
@@ -175,6 +177,41 @@ router.delete(
       res.status(400).json({
         success: false,
         error: error.message
+      });
+    }
+  }
+);
+
+// @desc    Add event rating
+// @route   POST /api/events/:id/ratings
+// @access  Private
+router.post(
+  "/:id/ratings",
+  verifyToken,
+  findOneRec(Event),
+  async (req, res) => {
+    try {
+      // add logged user to req.body
+      req.body.user = req.user.id;
+      req.body.doc = res.result._id;
+      req.body.docType = "Event";
+
+      const rating = await Rating.create(req.body);
+
+      res.status(200).json({
+        success: true,
+        data: rating
+      });
+    } catch (error) {
+      if (error.code === 11000) {
+        return res.status(400).json({
+          success: false,
+          error: `You have rated this resource already`
+        });
+      }
+      res.status(400).json({
+        success: false,
+        error: error
       });
     }
   }

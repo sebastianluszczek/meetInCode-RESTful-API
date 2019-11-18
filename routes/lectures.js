@@ -3,6 +3,7 @@ const router = require("express").Router();
 // import models
 const Lecture = require("../models/Lectures");
 const Event = require("../models/Event");
+const Rating = require("../models/Rating");
 
 // import middleware
 const findOneRec = require("../middleware/findOne");
@@ -39,7 +40,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// @desc    Create new talk
+// @desc    Create new lecture
 // @route   POST /api/lectures
 // @access  Private
 router.post(
@@ -140,6 +141,41 @@ router.delete(
       res.status(400).json({
         success: false,
         error: error.message
+      });
+    }
+  }
+);
+
+// @desc    Add lecture rating
+// @route   POST /api/lectures/:id/ratings
+// @access  Private
+router.post(
+  "/:id/ratings",
+  verifyToken,
+  findOneRec(Lecture),
+  async (req, res) => {
+    try {
+      // add logged user to req.body
+      req.body.user = req.user.id;
+      req.body.doc = res.result._id;
+      req.body.docType = "Lecture";
+
+      const rating = await Rating.create(req.body);
+
+      res.status(200).json({
+        success: true,
+        data: rating
+      });
+    } catch (error) {
+      if (error.code === 11000) {
+        return res.status(400).json({
+          success: false,
+          error: `You have rated this resource already`
+        });
+      }
+      res.status(400).json({
+        success: false,
+        error: error
       });
     }
   }
