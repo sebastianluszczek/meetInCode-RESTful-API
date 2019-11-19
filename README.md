@@ -6,6 +6,13 @@
 
 ---
 
+### Documentation
+
+API have documentation generated from _**Postman**_ _.json_ file:
+[API Documentation](https://documenter.getpostman.com/view/6596745/SW7XYoj3?version=latest)
+
+---
+
 ### In project i use:
 
 <p style="float: left">
@@ -39,15 +46,15 @@ JWT_SECRET = ...
 
 # ToDo
 
-Thinks to implement:
+Stuff to implement:
 
-- _admin_ panel routes - CRUD of users, changing ownership of events and events & lectures
+- <s>_admin_ panel routes - CRUD of users, changing ownership of events and lectures</s>
 - _user_ should be able to register for event
 - _user_'s should be able to give recommendations and ratings of events (maybe lectures too - only recoms)
 - owners shouldn't rate own events (lectures)
 - routes to add photos for _Event_'s and users avatars
-- add in _readMe.md_ list of fetchers where completed fetchers will be marked
-- average of ratings
+- add in _readMe.md_ list of tasks where completed tasks will be marked
+- <s>average of ratings</s>
 - JWT token in cookies
 - JWT and password verify methods moved to _Model.methods_
-- populate _Lectures_ when querying single _Event_
+- <s>populate _Lectures_ when querying single _Event_</s>

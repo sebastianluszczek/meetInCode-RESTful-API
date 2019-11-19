@@ -120,11 +120,19 @@ router.use("/:id/lectures", findOneRec(Event), require("./lectures"));
 // @desc    Get single event
 // @route   GET /api/events/:id
 // @access  Public
-router.get("/:id", findOneRec(Event), async (req, res) => {
-  res.status(200).json({
-    success: true,
-    data: res.result
-  });
+router.get("/:id", async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id).populate("lectures");
+    res.status(200).json({
+      success: true,
+      data: event
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: true,
+      error
+    });
+  }
 });
 
 // @desc    Update event
