@@ -38,6 +38,20 @@ const eventSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please add Event address (e.g. Długa 11 Kraków)"]
     },
+    participants: {
+      type: [
+        {
+          user: {
+            type: mongoose.Schema.ObjectId,
+            require: true
+          },
+          addedAt: {
+            type: Date,
+            default: Date.now
+          }
+        }
+      ]
+    },
     location: {
       // GeoJSON Point
       type: {

@@ -49,9 +49,10 @@ JWT_SECRET = ...
 Stuff to implement:
 
 - <s>_admin_ panel routes - CRUD of users, changing ownership of events and lectures</s>
-- _user_ should be able to register for event
-- _user_'s should be able to give recommendations and ratings of events (maybe lectures too - only recoms)
+- <s>_user_ should be able to register for event</s>
+- _user_'s should be able to give recommendations <s> and ratings of events (maybe lectures too - only recoms)</s>
 - owners shouldn't rate own events (lectures)
+- <s>all _users_ may rate each _Event_ or _Lecture_ only once</s>
 - routes to add photos for _Event_'s and users avatars
 - add in _readMe.md_ list of tasks where completed tasks will be marked
 - <s>average of ratings</s>

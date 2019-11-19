@@ -117,6 +117,37 @@ router.post("/", verifyToken, verifyRole("organizer"), async (req, res) => {
 // @access  Private
 router.use("/:id/lectures", findOneRec(Event), require("./lectures"));
 
+// @desc    Sign user as participants to specific event
+// @route   POST /api/events/:id/participate
+// @access  Private
+router.put(
+  "/:id/participate",
+  verifyToken,
+  findOneRec(Event),
+  async (req, res) => {
+    try {
+      req.body.participants = [
+        ...res.result.participants,
+        { user: req.user.id }
+      ];
+      const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+      });
+
+      res.status(200).json({
+        success: true,
+        data: event
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+  }
+);
+
 // @desc    Get single event
 // @route   GET /api/events/:id
 // @access  Public
